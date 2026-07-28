@@ -42,40 +42,70 @@ SUBJECT_COLORS = {"Biology": "#1f7a5c", "Chemistry": "#c97a1f", "Physics": "#2f5
 
 SAMPLE_QUESTIONS = {
     "Biology": [
-        {
-            "question": "Example of viruses having a polyhedral capsid that is with 252 capsomeres is:",
-            "options": {"A": "Adenovirus", "B": "Tobacco Mosaic Virus", "C": "Influenza virus", "D": "Bacteriophage"},
-            "correct": "A",
-        },
-        {
-            "question": "The causative organism of measles is:",
-            "options": {"A": "Poxvirus", "B": "Papovavirus", "C": "Picornovirus", "D": "Paramyxovirus"},
-            "correct": "D",
-        },
+        {"question": "Example of viruses having a polyhedral capsid that is with 252 capsomeres is:",
+         "options": {"A": "Adenovirus", "B": "Tobacco Mosaic Virus", "C": "Influenza virus", "D": "Bacteriophage"}, "correct": "A"},
+        {"question": "The causative organism of measles is:",
+         "options": {"A": "Poxvirus", "B": "Papovavirus", "C": "Picornovirus", "D": "Paramyxovirus"}, "correct": "D"},
+        {"question": "In the life cycle of a bacteriophage, the lysozymes are required in which of the following steps of infection process?",
+         "options": {"A": "Genome injection", "B": "Penetration", "C": "Replication", "D": "Adsorption"}, "correct": "B"},
+        {"question": "______ is transmitted through infected blood and hypodermic syringes.",
+         "options": {"A": "HIV", "B": "Influenza Virus", "C": "Morbilli Virus (Measles)", "D": "Vibrio Cholerae (Cholera)"}, "correct": "A"},
+        {"question": "In Calvin cycle CO₂ reacts with RuBP to produce:",
+         "options": {"A": "3-PGA", "B": "G3P", "C": "6-Carbon unstable intermediate", "D": "1,3 bisphosphoglycerate"}, "correct": "C"},
+        {"question": "Which option is correct about a chlorophyll molecule?",
+         "options": {"A": "Chemical formula C₅₅H₇₀O₆N₄Mg", "B": "Porphyrin ring with nitrogen in center", "C": "(Methyl) group on second pyrrole ring", "D": "Aldehyde group on second pyrrole ring"}, "correct": "A"},
+        {"question": "In the journey of electrons from photosystem II to photosystem I, plastocyanin is reduced by:",
+         "options": {"A": "Plastoquinone", "B": "Cytochrome complex", "C": "Primary electron acceptor of PSI", "D": "Ferredoxin"}, "correct": "B"},
+        {"question": "Enzyme NADP reductase is responsible for:",
+         "options": {"A": "Reducing NADP⁺", "B": "Oxidizing NADP⁺", "C": "Reducing Ferredoxin", "D": "Reducing P₇₀₀"}, "correct": "A"},
+        {"question": "Mono-saccharides have a general formula represented by:",
+         "options": {"A": "Cₙ(H₂O)ₙ", "B": "C(H₂O)ₙ", "C": "C₂(H₂O)ₙ", "D": "Cⁿ(H₂O)ₙ"}, "correct": "A"},
+        {"question": "Induced fit model of enzyme activity suggests that an enzyme:",
+         "options": {"A": "Cannot modify its active sites", "B": "Can bind to a single substrate", "C": "Can catalyze related reaction", "D": "Usually belongs to non-regulatory enzyme"}, "correct": "C"},
     ],
     "Physics": [
-        {
-            "question": "What is the shape of velocity-time graph for constant acceleration?",
-            "options": {"A": "Parabola line", "B": "Straight line", "C": "Incline curve", "D": "Decline curve"},
-            "correct": "B",
-        },
-        {
-            "question": "A stone thrown horizontally from the top of a tall building follows a path that is:",
-            "options": {"A": "Circular", "B": "Made of two straight line segments", "C": "Hyperbolic", "D": "Parabolic"},
-            "correct": "D",
-        },
+        {"question": "What is the shape of velocity-time graph for constant acceleration?",
+         "options": {"A": "Parabola line", "B": "Straight line", "C": "Incline curve", "D": "Decline curve"}, "correct": "B"},
+        {"question": "A stone thrown horizontally from the top of a tall building follows a path that is:",
+         "options": {"A": "Circular", "B": "Made of two straight line segments", "C": "Hyperbolic", "D": "Parabolic"}, "correct": "D"},
+        {"question": "A fireman wants to slide down a rope. The breaking load of the rope is 3/4th of the weight of the man. With what acceleration should the fireman slide down?",
+         "options": {"A": "g", "B": "g/4", "C": "3g/4", "D": "0"}, "correct": "B"},
+        {"question": "The number of revolutions in 3π radians is:",
+         "options": {"A": "1/60", "B": "3/2", "C": "2", "D": "6"}, "correct": "B"},
+        {"question": "A fighter plane is moving in a vertical circle of radius r. Its minimum velocity at the highest point of the circle will be:",
+         "options": {"A": "√3gr", "B": "√2gr", "C": "√gr", "D": "√(gr/2)"}, "correct": "C"},
+        {"question": "Which of the following increases by increasing amplitude?",
+         "options": {"A": "Wavelength", "B": "Frequency", "C": "Zero", "D": "Loudness"}, "correct": "D"},
+        {"question": "The shortest distance between any two points in phase on a wave is called:",
+         "options": {"A": "Displacement", "B": "Amplitude", "C": "Wavelength", "D": "Frequency"}, "correct": "C"},
+        {"question": "What is the potential difference between two points in an electric field if it takes 600 J of energy to move a charge of 2 C between these two points?",
+         "options": {"A": "0 J", "B": "1200 J", "C": "300 J", "D": "800 J"}, "correct": "C"},
+        {"question": "The coulomb's constant k depends upon:",
+         "options": {"A": "nature of medium", "B": "system of units", "C": "types of charge", "D": "nature of medium and system of units"}, "correct": "D"},
+        {"question": "If a flywheel is rotating at 3.0 rad/s, the time it takes to complete one revolution is:",
+         "options": {"A": "0.67 s", "B": "1.0 s", "C": "1.3 s", "D": "2.1 s"}, "correct": "D"},
     ],
     "Chemistry": [
-        {
-            "question": "According to which scientist, the probability of finding an electron at a certain position is possible?",
-            "options": {"A": "Bohr's", "B": "De-Broglie", "C": "Hund's", "D": "Schrodinger"},
-            "correct": "D",
-        },
-        {
-            "question": "Which of the following factor does not affect the magnitude of vapor pressure?",
-            "options": {"A": "amount of liquid", "B": "size of molecule", "C": "temperature of liquid", "D": "intermolecular forces"},
-            "correct": "A",
-        },
+        {"question": "According to which scientist, the probability of finding an electron at a certain position is possible?",
+         "options": {"A": "Bohr's", "B": "De-Broglie", "C": "Hund's", "D": "Schrodinger"}, "correct": "D"},
+        {"question": "Which gas in the discharge tube produces lightest canal ray particles?",
+         "options": {"A": "Ar", "B": "He", "C": "H₂", "D": "Ne"}, "correct": "C"},
+        {"question": "Which of the following factor does not affect the magnitude of vapor pressure?",
+         "options": {"A": "amount of liquid", "B": "size of molecule", "C": "temperature of liquid", "D": "intermolecular forces"}, "correct": "A"},
+        {"question": "A small building block which contains the whole information about a crystal structure is called:",
+         "options": {"A": "Cell", "B": "Unit Cell", "C": "Crystal lattice", "D": "Crystal unit"}, "correct": "B"},
+        {"question": "Precipitation occurs if the ionic concentration is:",
+         "options": {"A": "Less than Ksp", "B": "More than Ksp", "C": "Equal to Ksp", "D": "Present in any amount"}, "correct": "B"},
+        {"question": "One can estimate the direction in which equilibrium will shift with the help of:",
+         "options": {"A": "Le Chatelier's principle", "B": "Law of mass action", "C": "Hess's law", "D": "Law of heat of formation"}, "correct": "A"},
+        {"question": "The catalysis in which the catalyst and the reactants are in the same phase is known as:",
+         "options": {"A": "Heterogeneous catalysis", "B": "Homogeneous catalysis", "C": "Slow catalysis", "D": "Fast catalysis"}, "correct": "B"},
+        {"question": "Which of the following is a state function?",
+         "options": {"A": "Freezing", "B": "Decomposition", "C": "Sublimation", "D": "Enthalpy"}, "correct": "D"},
+        {"question": "What is the proton (atomic) number of an element that has four unpaired electrons in its ground state?",
+         "options": {"A": "6", "B": "14", "C": "22", "D": "26"}, "correct": "D"},
+        {"question": "Which type of solid is called an atomic solid?",
+         "options": {"A": "Covalent solids", "B": "Ionic solids", "C": "Metallic solids", "D": "Molecular solids"}, "correct": "A"},
     ],
 }
 ALL_EXAMPLES = {ex["question"]: ex for lst in SAMPLE_QUESTIONS.values() for ex in lst}
@@ -88,6 +118,10 @@ st.markdown(
     .mc-tagline { color: #6b7280; font-size: 0.98rem; margin-bottom: 1.4rem; }
     .mc-links a { text-decoration: none; margin-right: 14px; font-size: 0.9rem; }
     .stButton button { border-radius: 8px; }
+    .subject-chip {
+        display: inline-block; padding: 2px 12px; border-radius: 20px;
+        font-size: 0.82rem; font-weight: 600; color: white; margin-bottom: 0.6rem;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -123,15 +157,29 @@ if "question_text" not in st.session_state:
     st.session_state.question_text = ""
 
 subject = st.radio("Subject", ["Biology", "Chemistry", "Physics"], horizontal=True)
+color = SUBJECT_COLORS.get(subject, "#6b7280")
+st.markdown(f'<span class="subject-chip" style="background:{color}">{subject}</span>', unsafe_allow_html=True)
 
-st.caption("Try a question we know the answer to, or type your own below.")
-cols = st.columns(2)
-for col, example in zip(cols, SAMPLE_QUESTIONS[subject]):
-    with col:
-        if st.button(example["question"], key=f"ex_{subject}_{example['question'][:20]}", use_container_width=True):
-            st.session_state.question_text = example["question"]
+_PLACEHOLDER = "— choose one of 10 real exam questions —"
 
-question = st.text_area("Your question", key="question_text", height=80)
+
+def _apply_example():
+    choice = st.session_state.get(f"example_picker_{subject}")
+    if choice and choice != _PLACEHOLDER:
+        st.session_state.question_text = choice
+
+
+st.selectbox(
+    "Try an example",
+    [_PLACEHOLDER] + [ex["question"] for ex in SAMPLE_QUESTIONS[subject]],
+    key=f"example_picker_{subject}",
+    on_change=_apply_example,
+    label_visibility="collapsed",
+)
+st.caption("Or type your own question below.")
+
+question = st.text_area("Your question", key="question_text", height=80, label_visibility="collapsed",
+                         placeholder="e.g. What is the role of mitochondria in a cell?")
 ask = st.button("Ask", type="primary")
 
 if ask and question.strip():
@@ -146,8 +194,6 @@ if ask and question.strip():
             result = generate_mcq_explained(question, matched["options"], reranked)
         else:
             free_answer = generate(question, reranked)
-
-    color = SUBJECT_COLORS.get(subject, "#6b7280")
 
     if matched:
         is_right = result["letter"] == matched["correct"]
@@ -165,7 +211,7 @@ if ask and question.strip():
             st.write(result["explanation"])
     else:
         with st.container(border=True):
-            st.markdown(f"**Answer** &nbsp;·&nbsp; :blue[{subject}]" if color else "**Answer**")
+            st.markdown(f'**Answer** &nbsp;·&nbsp; <span style="color:{color}">{subject}</span>', unsafe_allow_html=True)
             st.write(free_answer)
 
     with st.expander("Retrieved context (what the model actually saw)"):
