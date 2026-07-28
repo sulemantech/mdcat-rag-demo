@@ -108,7 +108,6 @@ SAMPLE_QUESTIONS = {
          "options": {"A": "Covalent solids", "B": "Ionic solids", "C": "Metallic solids", "D": "Molecular solids"}, "correct": "A"},
     ],
 }
-ALL_EXAMPLES = {ex["question"]: ex for lst in SAMPLE_QUESTIONS.values() for ex in lst}
 
 st.markdown(
     """
@@ -153,70 +152,86 @@ def load_pipeline():
 
 chunks, collection = load_pipeline()
 
-if "question_text" not in st.session_state:
-    st.session_state.question_text = ""
-
 subject = st.radio("Subject", ["Biology", "Chemistry", "Physics"], horizontal=True)
 color = SUBJECT_COLORS.get(subject, "#6b7280")
 st.markdown(f'<span class="subject-chip" style="background:{color}">{subject}</span>', unsafe_allow_html=True)
 
-_PLACEHOLDER = "— choose one of 10 real exam questions —"
+# Reset quiz position whenever the subject changes, so each subject
+# always starts fresh at question 1 rather than carrying over an index
+# that may not exist in the new list.
+if st.session_state.get("q_subject") != subject:
+    st.session_state.q_subject = subject
+    st.session_state.q_index = 0
+    st.session_state.q_answer_shown = False
+    st.session_state.q_result = None
+    st.session_state.q_context = []
 
+questions_list = SAMPLE_QUESTIONS[subject]
+total = len(questions_list)
+current = questions_list[st.session_state.q_index]
 
-def _apply_example():
-    choice = st.session_state.get(f"example_picker_{subject}")
-    if choice and choice != _PLACEHOLDER:
-        st.session_state.question_text = choice
+st.markdown(f"#### Practice question {st.session_state.q_index + 1} of {total}")
+with st.container(border=True):
+    st.markdown(f"**{current['question']}**")
+    for letter, text in current["options"].items():
+        st.markdown(f"{letter}. {text}")
 
+    col1, col2 = st.columns(2)
+    check_clicked = col1.button("Check answer", key=f"check_{subject}_{st.session_state.q_index}", use_container_width=True)
+    next_clicked = col2.button("Next question →", key=f"next_{subject}_{st.session_state.q_index}", use_container_width=True, type="primary")
 
-st.selectbox(
-    "Try an example",
-    [_PLACEHOLDER] + [ex["question"] for ex in SAMPLE_QUESTIONS[subject]],
-    key=f"example_picker_{subject}",
-    on_change=_apply_example,
-    label_visibility="collapsed",
-)
-st.caption("Or type your own question below.")
+    if check_clicked:
+        with st.spinner("Retrieving context and generating..."):
+            metadata_filter = {"subject": subject}
+            candidates = hybrid_retrieve(current["question"], chunks, collection, metadata_filter=metadata_filter, top_k=20)
+            reranked = rerank(current["question"], candidates, top_k=5)
+            result = generate_mcq_explained(current["question"], current["options"], reranked)
+        st.session_state.q_result = result
+        st.session_state.q_answer_shown = True
+        st.session_state.q_context = reranked
 
-question = st.text_area("Your question", key="question_text", height=80, label_visibility="collapsed",
+    if st.session_state.q_answer_shown and st.session_state.q_result:
+        result = st.session_state.q_result
+        correct_letter = current["correct"]
+        correct_text = current["options"][correct_letter]
+        is_right = result["letter"] == correct_letter
+        if is_right:
+            st.success(f"✅ Correct! **{correct_letter}. {correct_text}**")
+        else:
+            st.error(f"The system answered **{result['letter']}**, but the correct answer is **{correct_letter}. {correct_text}**")
+        st.info(result["explanation"])
+        with st.expander("Retrieved context (what the model actually saw)"):
+            for i, chunk in enumerate(st.session_state.q_context, 1):
+                st.markdown(f"**[{i}]** {chunk[:500]}")
+                st.divider()
+
+if next_clicked:
+    st.session_state.q_index = (st.session_state.q_index + 1) % total
+    st.session_state.q_answer_shown = False
+    st.session_state.q_result = None
+    st.session_state.q_context = []
+    st.rerun()
+
+st.divider()
+st.markdown("#### Or ask your own question")
+question = st.text_area("Your question", height=80, label_visibility="collapsed",
                          placeholder="e.g. What is the role of mitochondria in a cell?")
-ask = st.button("Ask", type="primary")
+ask = st.button("Ask", key="ask_custom")
 
 if ask and question.strip():
-    matched = ALL_EXAMPLES.get(question.strip())
-
     with st.spinner("Retrieving context and generating..."):
         metadata_filter = {"subject": subject}
         candidates = hybrid_retrieve(question, chunks, collection, metadata_filter=metadata_filter, top_k=20)
         reranked = rerank(question, candidates, top_k=5)
+        free_answer = generate(question, reranked)
 
-        if matched:
-            result = generate_mcq_explained(question, matched["options"], reranked)
-        else:
-            free_answer = generate(question, reranked)
-
-    if matched:
-        is_right = result["letter"] == matched["correct"]
-        with st.container(border=True):
-            for letter, text in matched["options"].items():
-                if letter == matched["correct"]:
-                    st.markdown(f"**{letter}. {text}** ✅ *(correct answer)*")
-                elif letter == result["letter"] and not is_right:
-                    st.markdown(f"~~{letter}. {text}~~ ⬅️ *(model picked this)*")
-                else:
-                    st.markdown(f"{letter}. {text}")
-            st.divider()
-            badge = "✅ Model answered correctly" if is_right else "⚠️ Model answered incorrectly"
-            st.markdown(f"**{badge}**")
-            st.write(result["explanation"])
-    else:
-        with st.container(border=True):
-            st.markdown(f'**Answer** &nbsp;·&nbsp; <span style="color:{color}">{subject}</span>', unsafe_allow_html=True)
-            st.write(free_answer)
+    with st.container(border=True):
+        st.markdown(f'**Answer** &nbsp;·&nbsp; <span style="color:{color}">{subject}</span>', unsafe_allow_html=True)
+        st.write(free_answer)
 
     with st.expander("Retrieved context (what the model actually saw)"):
         for i, chunk in enumerate(reranked, 1):
             st.markdown(f"**[{i}]** {chunk[:500]}")
             st.divider()
 elif ask:
-    st.warning("Enter a question first, or pick one of the examples above.")
+    st.warning("Enter a question first.")
