@@ -1,4 +1,4 @@
-# MDCAT RAG Demo
+# MDCAT Copilot
 
 Live demo of a production RAG pipeline built from scratch: hybrid retrieval (BM25 + semantic
 search with Reciprocal Rank Fusion), cross-encoder reranking, and grounded generation, applied to

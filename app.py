@@ -36,7 +36,7 @@ from src.retrieval.hybrid_retriever import retrieve as hybrid_retrieve
 from src.retrieval.reranker import rerank
 from src.generation.generator import generate
 
-st.set_page_config(page_title="MDCAT RAG Demo", page_icon="🧬")
+st.set_page_config(page_title="MDCAT Copilot", page_icon="🧬")
 
 
 @st.cache_resource(show_spinner="Loading pipeline...")
@@ -49,7 +49,7 @@ def load_pipeline():
 
 chunks, collection = load_pipeline()
 
-st.title("MDCAT RAG Engine — Live Demo")
+st.title("MDCAT Copilot")
 st.markdown(
     """
     Ask a Biology, Chemistry, or Physics question (FSc / MDCAT level). This runs the real pipeline:
