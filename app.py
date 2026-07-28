@@ -8,17 +8,28 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# generator.py reads GROQ_API_KEY via os.getenv() at import time. Streamlit
-# Cloud's Secrets are meant to also appear as env vars automatically, but
-# that hasn't been reliable -- setting it explicitly here removes the
-# dependency on that behavior working correctly. Wrapped defensively since
-# st.secrets raises if no secrets.toml exists at all (e.g. local runs
-# without one, where .env is used instead).
+# generator.py reads GROQ_API_KEY via os.getenv() at import time. Fail
+# loudly and specifically here instead of letting it crash later inside
+# the Groq SDK with an opaque error -- shows exactly which secret keys
+# Streamlit actually sees (names only, never values) so a missing/renamed
+# secret is obvious instead of guessed at.
 try:
-    if "GROQ_API_KEY" in st.secrets:
-        os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
-except Exception:
-    pass
+    available_secret_keys = list(st.secrets.keys())
+except Exception as e:
+    available_secret_keys = None
+    st.error(f"st.secrets could not be read at all: {e!r}")
+    st.stop()
+
+if "GROQ_API_KEY" in available_secret_keys:
+    os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
+elif not os.getenv("GROQ_API_KEY"):
+    st.error(
+        "GROQ_API_KEY is not set. Secret keys Streamlit currently sees for "
+        f"this app: {available_secret_keys!r}. Add it under this app's "
+        "Settings -> Secrets, exactly as: GROQ_API_KEY = \"your-key-here\" "
+        "(top level, not nested under a [section])."
+    )
+    st.stop()
 
 from src.vectorstore.chroma_store import create_collection
 from src.retrieval.hybrid_retriever import retrieve as hybrid_retrieve
