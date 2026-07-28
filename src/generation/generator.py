@@ -78,6 +78,43 @@ Answer:"""
     return response.choices[0].message.content.strip()
 
 
+def generate_mcq_explained(question: str, options: dict, chunks: list[str], model: str = DEFAULT_MODEL) -> dict:
+    """
+    Like generate_mcq, but also asks for a short justification grounded in
+    the retrieved context -- built for the interactive demo, where showing
+    *why* an answer is correct matters more than a bare letter. Kept
+    separate from generate_mcq (used for strict benchmark grading) since
+    that prompt must stay a single-letter response for reliable parsing.
+    """
+    context = "\n\n".join(chunks)
+    options_text = "\n".join([f"{letter}. {text}" for letter, text in options.items()])
+    prompt = f"""You are an MDCAT exam tutor. Using ONLY the context below, identify the correct answer
+and briefly explain why it's correct, referencing the context directly.
+
+Context:
+{context}
+
+Question: {question}
+
+{options_text}
+
+Respond in exactly this format, nothing else:
+Answer: <letter>
+Explanation: <2-3 sentences, grounded in the context above>"""
+
+    response = _call_groq(model, [{"role": "user", "content": prompt}])
+    raw = response.choices[0].message.content.strip()
+
+    letter, explanation = "", raw
+    for line in raw.splitlines():
+        if line.strip().lower().startswith("answer:"):
+            letter = line.split(":", 1)[1].strip()[:1].upper()
+        elif line.strip().lower().startswith("explanation:"):
+            explanation = line.split(":", 1)[1].strip()
+
+    return {"letter": letter, "explanation": explanation, "raw": raw}
+
+
 if __name__ == "__main__":
     import sys
     sys.path.insert(0, ".")
