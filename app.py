@@ -1,11 +1,24 @@
 import sys
 sys.path.insert(0, ".")
 import json
+import os
 
 import streamlit as st
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# generator.py reads GROQ_API_KEY via os.getenv() at import time. Streamlit
+# Cloud's Secrets are meant to also appear as env vars automatically, but
+# that hasn't been reliable -- setting it explicitly here removes the
+# dependency on that behavior working correctly. Wrapped defensively since
+# st.secrets raises if no secrets.toml exists at all (e.g. local runs
+# without one, where .env is used instead).
+try:
+    if "GROQ_API_KEY" in st.secrets:
+        os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
+except Exception:
+    pass
 
 from src.vectorstore.chroma_store import create_collection
 from src.retrieval.hybrid_retriever import retrieve as hybrid_retrieve
