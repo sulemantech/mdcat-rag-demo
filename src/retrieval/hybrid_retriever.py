@@ -16,7 +16,7 @@ def retrieve(
     Hybrid retrieval using Reciprocal Rank Fusion (RRF).
 
     Returns:
-        List of chunk texts (strings).
+        List of chunk dicts ({"text", "subject", "grade", "chapter", ...}).
     """
 
     # ------------------------------------------------------------
@@ -31,6 +31,7 @@ def retrieve(
 
     semantic_ids = semantic_results["ids"][0]
     semantic_chunks = semantic_results["documents"][0]
+    semantic_metadatas = semantic_results["metadatas"][0]
 
     # Rank by ID
     semantic_ranks = {
@@ -60,9 +61,9 @@ def retrieve(
 
     lookup = {}
 
-    # Semantic results only contain text
-    for doc_id, text in zip(semantic_ids, semantic_chunks):
-        lookup[doc_id] = {"text": text}
+    # Semantic results carry text + metadata (chapter, subject, grade) separately
+    for doc_id, text, meta in zip(semantic_ids, semantic_chunks, semantic_metadatas):
+        lookup[doc_id] = {"text": text, **(meta or {})}
 
     # BM25 contains full chunk dictionaries
     for doc_id, chunk in bm25_results:
@@ -101,11 +102,11 @@ def retrieve(
     )
 
     # ------------------------------------------------------------
-    # Return top-k chunk texts
+    # Return top-k chunk dicts
     # ------------------------------------------------------------
 
     return [
-        lookup[doc_id]["text"]
+        lookup[doc_id]
         for doc_id in ranked_ids[:top_k]
     ]
 

@@ -200,9 +200,13 @@ with st.container(border=True):
         else:
             st.error(f"The system answered **{result['letter']}**, but the correct answer is **{correct_letter}. {correct_text}**")
         st.info(result["explanation"])
+        if result.get("chapter"):
+            st.caption(f"📖 Source: {result['chapter']}")
         with st.expander("Retrieved context (what the model actually saw)"):
             for i, chunk in enumerate(st.session_state.q_context, 1):
-                st.markdown(f"**[{i}]** {chunk[:500]}")
+                chapter = chunk.get("chapter")
+                label = f"**[{i}]**" + (f" · _{chapter}_" if chapter and chapter not in ("Unknown chapter", "Front Matter") else "")
+                st.markdown(f"{label} {chunk['text'][:500]}")
                 st.divider()
 
 if next_clicked:
@@ -231,7 +235,9 @@ if ask and question.strip():
 
     with st.expander("Retrieved context (what the model actually saw)"):
         for i, chunk in enumerate(reranked, 1):
-            st.markdown(f"**[{i}]** {chunk[:500]}")
+            chapter = chunk.get("chapter")
+            label = f"**[{i}]**" + (f" · _{chapter}_" if chapter and chapter != "Unknown chapter" else "")
+            st.markdown(f"{label} {chunk['text'][:500]}")
             st.divider()
 elif ask:
     st.warning("Enter a question first.")

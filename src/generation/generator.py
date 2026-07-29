@@ -28,9 +28,23 @@ def _call_groq(model: str, messages: list, max_retries: int = 3, backoff_seconds
                 raise
             time.sleep(backoff_seconds)
 
-def generate(question: str, chunks: list[str], model: str = DEFAULT_MODEL) -> str:
+def _chunk_text(chunk) -> str:
+    return chunk["text"] if isinstance(chunk, dict) else chunk
 
-    context = "\n\n".join(chunks)
+
+_UNCITABLE_CHAPTERS = {"Unknown chapter", "Front Matter"}
+
+
+def _top_chapter(chunks: list) -> str | None:
+    if not chunks or not isinstance(chunks[0], dict):
+        return None
+    chapter = chunks[0].get("chapter")
+    return chapter if chapter not in _UNCITABLE_CHAPTERS else None
+
+
+def generate(question: str, chunks: list[dict], model: str = DEFAULT_MODEL) -> str:
+
+    context = "\n\n".join(_chunk_text(c) for c in chunks)
 
     prompt = f"""
 [1] Instruction
@@ -56,11 +70,16 @@ Answer:
 """
 
     response = _call_groq(model, [{"role": "user", "content": prompt}])
-    return response.choices[0].message.content
+    answer = response.choices[0].message.content
+
+    chapter = _top_chapter(chunks)
+    if chapter:
+        answer = f"{answer}\n\nSource: {chapter}"
+    return answer
 
 
-def generate_mcq(question: str, options: dict, chunks: list[str], model: str = DEFAULT_MODEL) -> str:
-    context = "\n\n".join(chunks)
+def generate_mcq(question: str, options: dict, chunks: list[dict], model: str = DEFAULT_MODEL) -> str:
+    context = "\n\n".join(_chunk_text(c) for c in chunks)
     options_text = "\n".join([f"{letter}. {text}" for letter, text in options.items()])
     prompt = f"""You are an MDCAT exam assistant. Using ONLY the context below, select the correct answer.
 
@@ -78,7 +97,7 @@ Answer:"""
     return response.choices[0].message.content.strip()
 
 
-def generate_mcq_explained(question: str, options: dict, chunks: list[str], model: str = DEFAULT_MODEL) -> dict:
+def generate_mcq_explained(question: str, options: dict, chunks: list[dict], model: str = DEFAULT_MODEL) -> dict:
     """
     Like generate_mcq, but also asks for a short justification grounded in
     the retrieved context -- built for the interactive demo, where showing
@@ -86,7 +105,7 @@ def generate_mcq_explained(question: str, options: dict, chunks: list[str], mode
     separate from generate_mcq (used for strict benchmark grading) since
     that prompt must stay a single-letter response for reliable parsing.
     """
-    context = "\n\n".join(chunks)
+    context = "\n\n".join(_chunk_text(c) for c in chunks)
     options_text = "\n".join([f"{letter}. {text}" for letter, text in options.items()])
     prompt = f"""You are an MDCAT exam tutor. Using ONLY the context below, identify the correct answer
 and briefly explain why it's correct, referencing the context directly.
@@ -112,7 +131,13 @@ Explanation: <2-3 sentences, grounded in the context above>"""
         elif line.strip().lower().startswith("explanation:"):
             explanation = line.split(":", 1)[1].strip()
 
-    return {"letter": letter, "explanation": explanation, "raw": raw}
+    chapter = _top_chapter(chunks)
+    return {
+        "letter": letter,
+        "explanation": explanation,
+        "raw": raw,
+        "chapter": chapter,
+    }
 
 
 if __name__ == "__main__":
