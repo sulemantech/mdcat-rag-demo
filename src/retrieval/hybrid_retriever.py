@@ -95,9 +95,14 @@ def retrieve(
     # Sort by fused score
     # ------------------------------------------------------------
 
+    # Secondary sort key on doc_id makes tie-breaking deterministic across
+    # runs -- `scores` is built by iterating a set(), whose order for string
+    # keys depends on per-process hash randomization. Without this, exact
+    # score ties could pick a different chunk at the top_k cutoff on every
+    # run (see docs/LEARNINGS.md in the main repo).
     ranked_ids = sorted(
         scores,
-        key=lambda x: scores[x],
+        key=lambda x: (scores[x], x),
         reverse=True
     )
 
