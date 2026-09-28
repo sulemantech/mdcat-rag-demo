@@ -11,7 +11,7 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # Groq model catalog changes over time — check https://console.groq.com/docs/models
 # for the current instant/production model id before picking one.
-DEFAULT_MODEL = "llama-3.1-8b-instant"
+DEFAULT_MODEL = "openai/gpt-oss-20b"
 
 
 def _call_groq(model: str, messages: list, max_retries: int = 3, backoff_seconds: int = 5):
