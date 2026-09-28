@@ -163,6 +163,7 @@ if st.session_state.get("q_subject") != subject:
     st.session_state.q_subject = subject
     st.session_state.q_index = 0
     st.session_state.q_answer_shown = False
+    st.session_state.q_checked = None
     st.session_state.q_result = None
     st.session_state.q_context = []
 
@@ -173,15 +174,45 @@ current = questions_list[st.session_state.q_index]
 st.markdown(f"#### Practice question {st.session_state.q_index + 1} of {total}")
 with st.container(border=True):
     st.markdown(f"**{current['question']}**")
-    for letter, text in current["options"].items():
-        st.markdown(f"{letter}. {text}")
+    q_key = f"{subject}_{st.session_state.q_index}"
+    # A fresh widget key per question means the selection clears itself
+    # when the question changes -- no manual reset needed.
+    choice = st.radio(
+        "Your answer",
+        list(current["options"]),
+        index=None,
+        format_func=lambda letter: f"{letter}. {current['options'][letter]}",
+        key=f"pick_{q_key}",
+        disabled=st.session_state.q_answer_shown,
+        label_visibility="collapsed",
+    )
 
-    col1, col2 = st.columns(2)
-    check_clicked = col1.button("Check answer", key=f"check_{subject}_{st.session_state.q_index}", use_container_width=True)
-    next_clicked = col2.button("Next question →", key=f"next_{subject}_{st.session_state.q_index}", use_container_width=True, type="primary")
+    col1, col2, col3 = st.columns(3)
+    check_clicked = col1.button("Check my answer", key=f"check_{q_key}", use_container_width=True,
+                                disabled=choice is None or st.session_state.q_answer_shown)
+    show_clicked = col2.button("Show answer", key=f"show_{q_key}", use_container_width=True,
+                               disabled=st.session_state.q_answer_shown)
+    next_clicked = col3.button("Next question →", key=f"next_{q_key}", use_container_width=True, type="primary")
+
+    correct_letter = current["correct"]
+    correct_text = current["options"][correct_letter]
 
     if check_clicked:
-        with st.spinner("Retrieving context and generating..."):
+        st.session_state.q_checked = choice
+
+    # Only show feedback for the option that was actually checked -- if the
+    # student picks a different option afterwards, the old verdict disappears.
+    checked = st.session_state.get("q_checked")
+    if checked and checked == choice:
+        if checked == correct_letter:
+            st.success(f"✅ Right! **{checked}. {current['options'][checked]}** is the correct answer.")
+        else:
+            st.error(f"❌ Wrong. **{checked}. {current['options'][checked]}** is not the correct answer.")
+            if not st.session_state.q_answer_shown:
+                st.caption("Pick another option and check again, or click **Show answer**.")
+
+    if show_clicked:
+        with st.spinner("Retrieving context and generating the explanation..."):
             metadata_filter = {"subject": subject}
             candidates = hybrid_retrieve(current["question"], chunks, collection, metadata_filter=metadata_filter, top_k=20)
             reranked = rerank(current["question"], candidates, top_k=5)
@@ -189,17 +220,15 @@ with st.container(border=True):
         st.session_state.q_result = result
         st.session_state.q_answer_shown = True
         st.session_state.q_context = reranked
+        # Rerun so the radio and buttons redraw in their disabled state.
+        st.rerun()
 
     if st.session_state.q_answer_shown and st.session_state.q_result:
         result = st.session_state.q_result
-        correct_letter = current["correct"]
-        correct_text = current["options"][correct_letter]
-        is_right = result["letter"] == correct_letter
-        if is_right:
-            st.success(f"✅ Correct! **{correct_letter}. {correct_text}**")
-        else:
-            st.error(f"The system answered **{result['letter']}**, but the correct answer is **{correct_letter}. {correct_text}**")
-        st.info(result["explanation"])
+        st.info(f"📌 Correct answer: **{correct_letter}. {correct_text}**")
+        st.markdown(f"**Why:** {result['explanation']}")
+        if result["letter"] != correct_letter:
+            st.caption(f"⚠️ The AI picked **{result['letter']}** here, so its explanation may not match the correct answer.")
         if result.get("chapter"):
             st.caption(f"📖 Source: {result['chapter']}")
         with st.expander("Retrieved context (what the model actually saw)"):
@@ -212,6 +241,7 @@ with st.container(border=True):
 if next_clicked:
     st.session_state.q_index = (st.session_state.q_index + 1) % total
     st.session_state.q_answer_shown = False
+    st.session_state.q_checked = None
     st.session_state.q_result = None
     st.session_state.q_context = []
     st.rerun()
